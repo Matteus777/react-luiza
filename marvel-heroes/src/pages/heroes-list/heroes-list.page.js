@@ -29,7 +29,6 @@ class HeroesList extends React.Component {
       this.getCharacters();
     });
 
-
   };
 
   render() {
