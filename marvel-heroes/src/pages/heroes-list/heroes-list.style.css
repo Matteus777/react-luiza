@@ -1,7 +1,13 @@
+
+.home-list{
+  padding-left: 10vw;
+  padding-right: 10vw;
+}
 .colored {
-
-
   background-color: red;
+}
+.colored > img{
+  object-fit: cover;
 }
 
 .list-div {
@@ -64,7 +70,7 @@
 
 .search-icon {
   position: absolute;
-  left: 0;
+  left: 0px;
   margin-left: 2em;
 }
 

@@ -1,0 +1,111 @@
+.hero-detail-bg {
+  background-color: grey;
+}
+
+.hero-detail-main {
+  padding-left: 6em;
+  padding-top: 2em;
+}
+
+.hero-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-bottom: 5em;
+}
+
+.hero-detail-header-logo {
+  max-width: 200px;
+}
+
+.hero-detail-header-search-bar {
+  margin-left: 5em;
+  max-width: 80%;
+}
+
+.hero-detail-header-div-input {
+  position: relative;
+}
+
+.hero-detail-header-search-icon {
+  position: absolute;
+  left: 100px;
+  top: 13px;
+  /* margin-left: 2em; */
+}
+
+.hero-detail-main-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-detail-header-search-icon:hover {
+  cursor: pointer;
+}
+
+.hero-detail-main-content-hero-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-detail-main-wrap-content-data {
+  width: 50%;
+}
+
+.hero-detail-main-content-images {
+  position: relative;
+  width: 50%;
+}
+
+.hero-detail-main-content-data {
+  max-width: 350px;
+}
+
+.hero-detail-main-content-hero-description {
+  text-align: justify;
+  margin-bottom: 50px;
+  color: black;
+}
+
+.hero-detail-main-content-hero-releases {
+  max-width: 350px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero-detail-main-content-hero-comics-title {
+  margin-bottom: 20px;
+}
+
+.hero-detail-main-content-hero-comics-count {
+  display: flex;
+}
+
+.hero-detail-main-content-hero-comics-count>* {
+  margin-right: 20px;
+
+}
+
+.hero-detail-main-content-hero-comics {
+  width: 50%;
+}
+
+.hero-image {
+  z-index:1;
+  opacity: 1;
+  position: relative;
+  object-fit: cover;
+
+}
+
+.hero-comic-image{
+  width:180px;
+  position:absolute;
+  left:-150px;
+  top:80px;
+  z-index:0;
+  object-fit: cover;
+}

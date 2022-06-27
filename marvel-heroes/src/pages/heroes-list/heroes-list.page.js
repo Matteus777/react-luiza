@@ -11,7 +11,7 @@ import { ReactComponent as Favorited } from '../../assets/favorito_01.svg';
 import { ReactComponent as NotFavorited } from '../../assets/favorito_02.svg';
 import { ReactComponent as Favorited2 } from '../../assets/favorito_03.svg';
 
-import './heroes-list.css';
+import './heroes-list.style.css';
 
 class HeroesList extends React.Component {
   constructor() {
@@ -28,14 +28,12 @@ class HeroesList extends React.Component {
     this.setState({ nameFilter: event.target.value }, () => {
       this.getCharacters();
     });
-
   };
 
   render() {
-
     if (this.state.data) {
       return (
-        <div>
+        <div class="home-list">
           <div className="header">
             <div className="header-image">
               <Logo />
