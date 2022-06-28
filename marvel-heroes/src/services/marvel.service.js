@@ -37,7 +37,7 @@ class MarvelService {
     }
     this.cancelToken = axios.CancelToken.source()
     const response = await axios.get(`${process.env.REACT_APP_MARVEL_URL}characters/${id}/comics`,
-      { params: { apikey: process.env.REACT_APP_MARVEL_PUBLIC_KEY }, cancelToken: this.cancelToken.token }
+      { params: { apikey: process.env.REACT_APP_MARVEL_PUBLIC_KEY,orderBy:"-onsaleDate" }, cancelToken: this.cancelToken.token }
     );
     return response.data;
   }
