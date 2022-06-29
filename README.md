@@ -1,7 +1,7 @@
 # Disclaimer
 Este foi meu primeiro contato com React, certamente não foram utilizadas as melhores práticas possíveis, mas cumpre seu propósito.
 
-## Available Scripts
+## Configuração
 
 In the project directory, you can run:
 
