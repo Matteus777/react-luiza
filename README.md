@@ -3,8 +3,7 @@ Este foi meu primeiro contato com React, certamente não foram utilizadas as mel
 
 ## Configuração
 
-In the project directory, you can run:
-
+Na raiz do projeto:
 ### `npm install`
 Instala as dependencias do node;
 ### `npm start`
