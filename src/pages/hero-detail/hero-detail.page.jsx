@@ -11,7 +11,6 @@ import { ReactComponent as Quadrinhos } from '../../assets/ic_quadrinhos.svg';
 import { ReactComponent as FillStar } from '../../assets/avaliacao_on.svg';
 import { ReactComponent as EmptyStar } from '../../assets/avaliacao_off.svg';
 import HeroComicItem from './hero-detail-comic-item';
-import moment from 'moment';
 import * as Vibrant from 'node-vibrant';
 
 
@@ -66,7 +65,6 @@ function HeroDetail(props) {
     setNameFilter("");
     MarvelService.getCharacterById(heroId).then((value) => {
       MarvelService.getComicsById(heroId).then((comics) => {
-        moment.locale('pt-br');
         setLast10Comics(comics.data.results.slice(0, 10));
         let hero = value.data.results[0];
         hero.comicImage = "";
