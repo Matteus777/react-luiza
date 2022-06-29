@@ -2,63 +2,99 @@ import React, { useState, useEffect, useMemo } from 'react';
 import MarvelService from '../../services/marvel.service';
 import HeroCard from './hero-card.component';
 import { ReactComponent as Logo } from '../../assets/logo.svg';
-import { ReactComponent as SearchBar } from '../../assets/search_bar_vermelho.svg';
+import { ReactComponent as LogoLoader } from '../../assets/logo_loader.svg';
 import { ReactComponent as SearchIcon } from '../../assets/ic_busca.svg';
 import { ReactComponent as HeroicIcon } from '../../assets/ic_heroi.svg';
 import { ReactComponent as ToggleOff } from '../../assets/toggle_off.svg';
 import { ReactComponent as ToggleOn } from '../../assets/toggle_on.svg';
 import { ReactComponent as Favorited } from '../../assets/favorito_01.svg';
-import { ReactComponent as NotFavorited } from '../../assets/favorito_02.svg';
-import { ReactComponent as Favorited2 } from '../../assets/favorito_03.svg';
+
 
 import './heroes-list.style.css';
+import '../_shared/loader.css';
 import { useFavs } from '../../context/favorite.context';
 
 
 
 function HeroesList(props) {
 
-  const [data, setData] = useState();
-  const [showFavorite, setShowFavorite] = useState(false);
-  const [nameFilter, setNameFilter] = useState("");
-
+  const [filterOptions, setFilter] = useState({ showFavorite: false, });
+  const [paginationOptions, setPagination] = useState({ currentPage: 1, pageSize: 20 })
+  const [isLoading, setLoading] = useState(false);
+  const [dataToShow, setDataToShow] = useState();
 
   const { favs } = useFavs();
 
   useEffect(() => {
+    setLoading(true);
     MarvelService.getAllCharacters()
       .then(data => {
         const favorites = JSON.parse(localStorage.getItem('favs'));
         if (!favorites) localStorage.setItem("favs", JSON.stringify([]));
-        setData(data)
+        setDataToShow(data?.data);
+        setLoading(false)
       });
   }, []);
 
+
+
   useEffect(() => {
+    setLoading(true);
     let filter = {};
-    if (nameFilter) filter.nameStartsWith = nameFilter;
-    if (!showFavorite) filter.orderBy = "name";
-    MarvelService.getAllCharacters(filter)
-      .then(data => setData(data));
-  }, [nameFilter, showFavorite]);
+    if (paginationOptions.pageSize) filter.limit = paginationOptions.pageSize;
+    if (paginationOptions.currentPage > 1) filter.offset = (paginationOptions.currentPage - 1) * paginationOptions.pageSize;
+    if (filterOptions.name) filter.nameStartsWith = filterOptions.name;
+    if (!filterOptions.showFavorite) {
+      MarvelService.getAllCharacters(filter)
+        .then(data => {
+          setDataToShow(data?.data);
+          setLoading(false)
+        });
+    } else {
+      let dataArray = favs;
+      if (filterOptions.name) dataArray = favs.filter(t => t.name.toLowerCase().startsWith(filterOptions.name.toLowerCase()));
+      setDataToShow({ results: dataArray, total: dataArray.length });
+      setLoading(false)
+    }
+  }, [paginationOptions, favs, filterOptions]);
 
-
-
+  useEffect(() => {
+    setPagination({ currentPage: 1, pageSize: 20 });
+  }, [filterOptions]);
 
   const handleChange = event => {
-    setNameFilter(event.target.value);
+    setFilter(f => {
+      return { ...f, ...{ name: event.target.value } }
+    });
   };
+  const handleOptionChange = event => {
+    setPagination(f => {
+      return { ...f, ...{ pageSize: event.target.value, currentPage: 1 } }
+    })
+  }
+  function handleNextPage() {
+    setPagination(f => {
+      return { ...f, ...{ currentPage: paginationOptions.currentPage + 1 } }
+    });
+  }
+  function handlePreviousPage() {
+    setPagination(f => {
+      return { ...f, ...{ currentPage: paginationOptions.currentPage - 1 } }
+    });
+  }
+
   function getCheckButton() {
-    if (showFavorite) return <ToggleOn className="header-toggle-filter" onClick={onToggleFilter} />
+    if (filterOptions.showFavorite) return <ToggleOn className="header-toggle-filter" onClick={onToggleFilter} />
     return <ToggleOff className="header-toggle-filter" onClick={onToggleFilter} />
   }
 
   function onToggleFilter() {
-    setShowFavorite(!showFavorite)
+    setFilter(f => {
+      return { ...f, ...{ showFavorite: !filterOptions.showFavorite } }
+    })
   }
-  const dataToShow = showFavorite ? favs : data?.data.results;
 
-  if (data) {
+  if (dataToShow) {
     return (
       <div className="home-list">
         <div className="header">
@@ -72,14 +108,16 @@ function HeroesList(props) {
               <SearchIcon className="search-icon" />
               <input name="message"
                 onChange={handleChange}
-                value={nameFilter} className="search-input" type='text' placeholder="Procure por heróis" />
+                autocomplete="off"
+                value={filterOptions.name} className="search-input" type='text' placeholder="Procure por heróis" />
             </div>
           </div>
         </div>
         <div className="header-filter">
           <div className="header-count-list">
-            <p>Encontrados {data.data.total} heróis </p>
+            <p>Encontrados {dataToShow.total} heróis </p>
           </div>
+
           <div className="header-filter-options">
             <div className="header-filter-order-option">
               <HeroicIcon />
@@ -91,15 +129,51 @@ function HeroesList(props) {
               <span>Somente favoritos</span>
             </div>
           </div>
+          <div className="header-pagination">
+            <div className="select-page-size">
+              Itens por pagina:
+              <select value={paginationOptions.pageSize} onChange={handleOptionChange}>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div>
+              {paginationOptions.currentPage === 1 ? 1 : (paginationOptions.pageSize * (paginationOptions.currentPage - 1)) + 1} - {(paginationOptions.pageSize * (paginationOptions.currentPage)) < dataToShow.total ? paginationOptions.pageSize * paginationOptions.currentPage : dataToShow.total} de {dataToShow.total}
+            </div>
+            <div>
+              {paginationOptions.currentPage > 1 ? (<button className="pagination-btn" onClick={handlePreviousPage}>&lt; </button>) : <div></div>}
+
+            </div>
+            <div>
+              {(paginationOptions.pageSize * (paginationOptions.currentPage)) > dataToShow.total ? <div></div> : (<button className="pagination-btn" onClick={handleNextPage}> &gt;</button>)}
+
+
+            </div>
+          </div>
         </div>
-        <div className="list-div">
+
+
+        {!isLoading ? <div className="list-div">
           {
-            dataToShow.map((value) => {
+            dataToShow.results.map((value) => {
               return <HeroCard hero={value} key={value.id} />
             })
-          }</div>
+          }</div> : <div className="showLoader">
+          <div class="wrap-loader">
+            <LogoLoader />
+            <div className="loader"></div>
+          </div></div>}
+
+
       </div>
     )
+  } else {
+    return (<div className="showLoaderFullScreen">
+      <div class="wrap-loader">
+        <LogoLoader />
+        <div className="loader"></div>
+      </div></div>)
   }
 }
 export default HeroesList;

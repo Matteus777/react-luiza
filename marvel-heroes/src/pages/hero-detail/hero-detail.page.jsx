@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ReactComponent as Logo } from '../../assets/logo_menor.svg';
 import { ReactComponent as SearchBar } from '../../assets/search_bar_branco.svg';
+import { ReactComponent as LogoLoader } from '../../assets/logo_loader.svg';
+
 import { ReactComponent as SearchIcon } from '../../assets/ic_busca_menor.svg';
 import { ReactComponent as Favorited } from '../../assets/favorito_01.svg';
 import { ReactComponent as NotFavorited } from '../../assets/favorito_02.svg';
@@ -13,10 +15,12 @@ import moment from 'moment';
 import * as Vibrant from 'node-vibrant';
 
 
-import { useParams, withRouter, } from 'react-router-dom';
+import { Link, useParams, withRouter, } from 'react-router-dom';
 
 
 import './hero-detail.style.css';
+import '../_shared/loader.css';
+
 import MarvelService from '../../services/marvel.service';
 import { useEffect } from 'react';
 import { useFavs } from '../../context/favorite.context';
@@ -33,13 +37,33 @@ function HeroDetail(props) {
   const [last10Comics, setLast10Comics] = useState([]);
   const [nameFilter, setNameFilter] = useState("");
 
+  const [dataToShow, setDataToShow] = useState([]);
+
 
   const { favs, addFavorite, removeFavorite, isFavorite } = useFavs();
 
   const handleChange = event => {
     setNameFilter(event.target.value);
   };
+
   useEffect(() => {
+    setDataToShow(null);
+    if (nameFilter) {
+      MarvelService.getAllCharacters({ nameStartsWith: nameFilter })
+        .then(data => {
+          setDataToShow(data?.data.results);
+        });
+    }
+  }, [nameFilter]);
+
+  const handleClick = event => {
+    setHeroId(event);
+  }
+
+  useEffect(() => {
+    setDataToShow(null);
+    setHero(null);
+    setNameFilter("");
     MarvelService.getCharacterById(heroId).then((value) => {
       MarvelService.getComicsById(heroId).then((comics) => {
         moment.locale('pt-br');
@@ -69,22 +93,42 @@ function HeroDetail(props) {
   return (hero ? (<div className="hero-detail-bg" style={{ backgroundColor: bgColor }}>
     <div className="hero-detail-main">
       <div className="hero-detail-header">
-        <Logo className="hero-detail-header-logo" />
-        <div className="hero-detail-header-div-input">
+        <Link to="/home">
+          <Logo className="hero-detail-header-logo" />
+        </Link>
+        <div className="hero-detail-header-div-input" >
           <SearchIcon className="hero-detail-header-search-icon" />
           <input name="message"
             onChange={handleChange}
+            autocomplete="off"
             value={nameFilter} className="search-input-hero-detail" type='text' placeholder="Procure por heróis" />
+          {dataToShow ?
+            <div className="hero-detail-header-div-dropdown" >{
+              dataToShow.map((value) => {
+                return <div className="hero-detail-header-option" key={value.id} onClick={() => handleClick(value.id)}>
+                  <img src={`${value.thumbnail.path}/standard_xlarge.${value.thumbnail.extension}`} alt="thumbnail" />
+                  <div className="hero-detail-header-option-name">
+                    {value.name}
+                  </div>
+                </div>
+              })}
+            </div>
+            : <div></div>}
         </div>
       </div>
       <div className="hero-detail-main-content">
         <div className="hero-detail-main-wrap-content-data">
           <div className="hero-detail-main-content-data">
             <div className="hero-detail-main-content-hero-name">
-              <h1>{hero.name}</h1>
-              {isFavorite(hero.id) ?
-                <Favorited onClick={() => { removeFavorite(hero.id) }} /> :
-                <NotFavorited onClick={() => { addFavorite(hero) }} />}
+              <div className="hero-name">
+                <h1>{hero.name}</h1>
+              </div>
+              <div className="favorite">
+                {isFavorite(hero.id) ?
+                  <Favorited onClick={() => { removeFavorite(hero.id) }} /> :
+                  <NotFavorited onClick={() => { addFavorite(hero) }} />}
+              </div>
+
             </div>
             <div className="hero-detail-main-content-hero-description">
               <p>
@@ -143,7 +187,11 @@ function HeroDetail(props) {
     </div>
 
 
-  </div>) : <div></div>)
+  </div>) : <div className="showLoaderFullScreen">
+    <div class="wrap-loader">
+      <LogoLoader />
+      <div className="loader"></div>
+    </div></div>)
 }
 export default HeroDetail;
 
